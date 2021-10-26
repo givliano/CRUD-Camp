@@ -1,5 +1,6 @@
 // File for the logic, implementation of the queries of the campground models, all the render call
 const Campground = require('../models/campground');
+const cloudinary = require('../cloudinary');
 
 module.exports.index = async (req, res) => {
   const campgrounds = await Campground.find({});
@@ -34,8 +35,6 @@ module.exports.showCampground = async (req, res) => {
       }
     }).populate('author');
 
-    console.log(campground);
-
   if (!campground) {
     req.flash('error', 'Cannot find the campground.');
     // return so doenst execute the show page
@@ -64,6 +63,14 @@ module.exports.updateCampground = async (req, res) => {
   const imgs = req.files.map(({ path, filename }) => ({ url: path, filename }));
   campground.images.push(...imgs);
   await campground.save();
+  if (req.body.deleteImages) {
+    for (let filename of req.body.deleteImages) {
+      await cloudinary.uploader.destroy(filename);
+    }
+    // Deletes the images in the campground which have the filename in the
+    // delete images array
+    await campground.updateOne({ $pull: { images: { filename: { $in: req.body.deleteImages } }}})
+  }
   req.flash('success', 'Successfully updated campground');
   res.redirect(`/campgrounds/${ campground._id }`)
 }
