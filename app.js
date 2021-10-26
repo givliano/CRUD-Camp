@@ -1,3 +1,9 @@
+if (process.env.NODE_ENV !== 'production') {
+  // In development mode the config in the dotenv file will be
+  // accessible in the process.env in node
+  require('dotenv').config();
+}
+
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');

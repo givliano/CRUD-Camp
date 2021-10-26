@@ -14,9 +14,11 @@ module.exports.createCampground = async (req, res) => {
   // req.body.campground comes from the form fields under campground[X]
   // if (!req.body.campground) throw new ExpressError('Invalid Campground Data', 400) -> made obsolete with validateCampground
   const campground = new Campground(req.body.campground);
+  // req.files is added by multer/cloudinary
+  campground.images = req.files.map(({ path, filename }) => ({ url: path, filename }));
   campground.author = req.user._id;
   await campground.save();
-  req.flash('success', 'Successfully made a new background');
+  req.flash('success', 'Successfully made a new campground');
   res.redirect(`/campgrounds/${campground._id}`);
 };
 
@@ -31,6 +33,8 @@ module.exports.showCampground = async (req, res) => {
         path: 'author'
       }
     }).populate('author');
+
+    console.log(campground);
 
   if (!campground) {
     req.flash('error', 'Cannot find the campground.');
@@ -56,6 +60,10 @@ module.exports.updateCampground = async (req, res) => {
   const { id } = req.params;
   // req.body.campground is composed of title and location keys
   const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
+  // Pushes new images to the img array
+  const imgs = req.files.map(({ path, filename }) => ({ url: path, filename }));
+  campground.images.push(...imgs);
+  await campground.save();
   req.flash('success', 'Successfully updated campground');
   res.redirect(`/campgrounds/${ campground._id }`)
 }
