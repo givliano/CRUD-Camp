@@ -2,15 +2,12 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const Review = require('./review');
 
+// Gotta set mongoose to include virtual properties in toJSON calls
+const options = { toJSON: { virtuals: true } };
+
 const ImageSchema = new Schema({
   url: String,
   filename: String
-});
-
-// Creates a virtual property on memory to get the thumbnailed version of the images
-// 200 px wide
-ImageSchema.virtual('thumbnail').get(function() {
-  return this.url.replace('/upload', '/upload/w_200');
 });
 
 // Creates Schema
@@ -41,7 +38,7 @@ const CampgroundSchema = new Schema({
       ref: 'Review'
     }
   ]
-});
+}, options);
 
 CampgroundSchema.post('findOneAndDelete', async (doc) => {
   if (doc) {
@@ -52,6 +49,19 @@ CampgroundSchema.post('findOneAndDelete', async (doc) => {
       }
     });
   }
+});
+
+// Creates a virtual property on memory to get the thumbnailed version of the images
+// 200 px wide
+ImageSchema.virtual('thumbnail').get(function() {
+  return this.url.replace('/upload', '/upload/w_200');
+});
+
+CampgroundSchema.virtual('properties.popupMarkup').get(function() {
+  return `
+    <strong><a href=/campgrounds/${this._id}>${this.title}</a></strong>
+    <p>${this.description.substring(0, 20)}...</p>
+  `;
 });
 
 module.exports = mongoose.model('Campground', CampgroundSchema);
