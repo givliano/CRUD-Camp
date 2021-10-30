@@ -11,9 +11,13 @@ const ejsMate = require('ejs-mate');
 const ExpressError = require('./utils/ExpressError')
 const session = require('express-session');
 const flash = require('connect-flash');
+// used to send put/delete verbs from forms
 const methodOverride = require('method-override');
+// used for authentication/authorization
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
+// used to prevent mongo injections
+const mongoSanitize = require('express-mongo-sanitize');
 const User = require('./models/user');
 
 const userRoutes = require('./routes/users');
