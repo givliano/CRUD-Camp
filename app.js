@@ -45,6 +45,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 // serves the static public directory
 app.use(express.static(path.join(__dirname, 'public')));
+// sets mongoSanitize to replace mongo queries from the url or other injections
+// with a underscore
+app.use(mongoSanitize({
+  replaceWith: '_'
+}))
 
 const sessionConfig = {
   secret: 'thishouldbeabettersecret',
