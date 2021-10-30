@@ -1,0 +1,15 @@
+#cluster-map {
+  width: 100%;
+  height: 500px;
+}
+
+#map {
+  width: 100%;
+  height: 300px;
+}
+
+.thumbnail-container {
+  width: 200px;
+  height: 200px;
+  overflow: hidden;
+}
